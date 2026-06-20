@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Roost. | Modern Coffee.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --espresso:#2b1b14;
+    --cream:#f6efe4;
+    --rust:#b3502f;
+    --moss:#5c6b4f;
+    --paper:#fffdf9;
+    --line:#e2d8c6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--cream);
+    color:var(--espresso);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-0.01em;}
+  a{color:inherit;text-decoration:none;}
+
+  header{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 5%;
+    background:var(--cream);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{font-size:1.4rem;font-weight:600;letter-spacing:-0.02em;}
+  .logo span{color:var(--rust);}
+  nav{display:flex;gap:28px;font-size:0.92rem;}
+  nav a:hover{color:var(--rust);}
+  #cart-btn{
+    background:var(--espresso);color:var(--paper);
+    border:none;border-radius:30px;padding:9px 18px;
+    font-size:0.9rem;cursor:pointer;display:flex;align-items:center;gap:6px;
+  }
+  #cart-btn:hover{background:var(--rust);}
+
+  .hero{
+    display:grid;grid-template-columns:1.1fr 1fr;align-items:center;
+    gap:40px;padding:80px 5% 60px;max-width:1300px;margin:0 auto;
+  }
+  .hero h1{font-size:clamp(2.4rem,5vw,4rem);line-height:1.05;margin-bottom:18px;}
+  .hero p{max-width:420px;color:#5a4a3f;margin-bottom:28px;}
+  .btn-primary{
+    display:inline-block;background:var(--rust);color:var(--paper);
+    padding:14px 30px;border-radius:30px;font-weight:500;font-size:0.95rem;
+    transition:transform .15s ease;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  .hero-art{
+    aspect-ratio:1/1;border-radius:24px;background:
+      radial-gradient(circle at 30% 30%, #d98b5f 0%, var(--rust) 55%, var(--espresso) 100%);
+    position:relative;overflow:hidden;
+  }
+  .hero-art::after{
+    content:"";position:absolute;inset:0;
+    background:repeating-radial-gradient(circle at 50% 120%, transparent 0 40px, rgba(255,255,255,0.04) 41px 42px);
+  }
+
+  section.shop{padding:40px 5% 100px;max-width:1300px;margin:0 auto;}
+  .section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:34px;flex-wrap:wrap;gap:10px;}
+  .section-head h2{font-size:1.9rem;}
+  .section-head p{color:#7a6a5d;font-size:0.92rem;}
+
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:26px;
+  }
+  .card{
+    background:var(--paper);border:1px solid var(--line);border-radius:16px;
+    overflow:hidden;display:flex;flex-direction:column;
+    transition:box-shadow .2s ease, transform .2s ease;
+  }
+  .card:hover{box-shadow:0 12px 30px rgba(43,27,20,0.10);transform:translateY(-3px);}
+  .card-img{
+    height:190px;background-size:cover;background-position:center;
+    background-color:var(--line);
+  }
+  .card-body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:6px;flex:1;}
+  .card-body .origin{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--moss);}
+  .card-body h3{font-size:1.1rem;}
+  .card-body .desc{font-size:0.85rem;color:#7a6a5d;flex:1;}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+  .price{font-weight:600;font-family:'Fraunces',serif;font-size:1.05rem;}
+  .add-btn{
+    background:var(--espresso);color:var(--paper);border:none;border-radius:24px;
+    padding:8px 16px;font-size:0.82rem;cursor:pointer;
+  }
+  .add-btn:hover{background:var(--rust);}
+  .state-msg{padding:40px 0;color:#8a7a6d;font-size:0.95rem;}
+
+  /* Cart drawer */
+  #overlay{
+    position:fixed;inset:0;background:rgba(43,27,20,0.4);
+    opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:90;
+  }
+  #overlay.show{opacity:1;pointer-events:auto;}
+  #drawer{
+    position:fixed;top:0;right:0;height:100%;width:380px;max-width:92vw;
+    background:var(--paper);z-index:95;transform:translateX(100%);
+    transition:transform .3s ease;display:flex;flex-direction:column;
+    box-shadow:-10px 0 30px rgba(0,0,0,0.15);
+  }
+  #drawer.show{transform:translateX(0);}
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;padding:22px 24px;border-bottom:1px solid var(--line);}
+  .drawer-head h3{font-size:1.3rem;}
+  #close-cart{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--espresso);}
+  #cart-items{flex:1;overflow-y:auto;padding:16px 24px;}
+  .cart-row{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);}
+  .cart-row img{width:54px;height:54px;border-radius:10px;object-fit:cover;background:var(--line);}
+  .cart-row .info{flex:1;}
+  .cart-row .info .name{font-weight:500;font-size:0.92rem;}
+  .cart-row .info .qty-row{display:flex;align-items:center;gap:8px;margin-top:4px;}
+  .qty-row button{
+    width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:none;cursor:pointer;
+  }
+  .cart-row .remove{font-size:0.78rem;color:var(--rust);cursor:pointer;background:none;border:none;margin-top:4px;}
+  .drawer-foot{padding:20px 24px 26px;border-top:1px solid var(--line);}
+  .drawer-foot .total-row{display:flex;justify-content:space-between;margin-bottom:14px;font-weight:600;}
+  .checkout-btn{
+    width:100%;background:var(--espresso);color:var(--paper);border:none;border-radius:30px;
+    padding:14px;font-size:0.95rem;cursor:pointer;
+  }
+  .checkout-btn:hover{background:var(--rust);}
+  .empty-cart{color:#9a8a7d;font-size:0.9rem;text-align:center;margin-top:40px;}
+
+  footer{
+    padding:40px 5%;text-align:center;color:#8a7a6d;font-size:0.85rem;
+    border-top:1px solid var(--line);
+  }
+
+  @media(max-width:760px){
+    .hero{grid-template-columns:1fr;padding-top:50px;}
+    nav{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">The <span>Roost</span>.</div>
+  <nav>
+    <a href="#shop">Beans</a>
+    <a href="#shop">Equipment</a>
+    <a href="#shop">Merch</a>
+  </nav>
+  <button id="cart-btn" onclick="openCart()">Cart (<span id="cart-count">0</span>)</button>
+</header>
+
+<section class="hero">
+  <div>
+    <h1>Coffee, brewed<br>with intent.</h1>
+    <p>Small-batch beans, roasted weekly and shipped fresh. Every bag traced back to the farm that grew it.</p>
+    <a href="#shop" class="btn-primary">Shop the roast</a>
+  </div>
+  <div class="hero-art"></div>
+</section>
+
+<section class="shop" id="shop">
+  <div class="section-head">
+    <div>
+      <h2>House favourites.</h2>
+      <p>Live from our shop database.</p>
+    </div>
+  </div>
+  <div class="grid" id="product-grid">
+    <div class="state-msg">Loading beans…</div>
+  </div>
+</section>
+
+<footer>
+  © 2026 The Roost. Built as a demo storefront — connected to a live Supabase backend.
+</footer>
+
+<div id="overlay" onclick="closeCart()"></div>
+<aside id="drawer">
+  <div class="drawer-head">
+    <h3>Your cart.</h3>
+    <button id="close-cart" onclick="closeCart()">&times;</button>
+  </div>
+  <div id="cart-items"><div class="empty-cart">Your cart is empty.</div></div>
+  <div class="drawer-foot">
+    <div class="total-row"><span>Total</span><span id="cart-total">£0.00</span></div>
+    <button class="checkout-btn" onclick="checkout()">Checkout</button>
+  </div>
+</aside>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://koctawglvhoqefwnjzhq.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_OSoD0kwVFWxCmaN0H6iDSQ_rW_QLw1d';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let cart = JSON.parse(localStorage.getItem('roost_cart') || '[]');
+  let products = [];
+
+  const grid = document.getElementById('product-grid');
+
+  async function loadProducts(){
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error){
+      grid.innerHTML = `<div class="state-msg">Couldn't load products: ${error.message}</div>`;
+      return;
+    }
+    if (!data || data.length === 0){
+      grid.innerHTML = `<div class="state-msg">No products yet. Add some in Supabase!</div>`;
+      return;
+    }
+    products = data;
+    renderProducts();
+  }
+
+  function renderProducts(){
+    grid.innerHTML = products.map(p => `
+      <div class="card">
+        <div class="card-img" style="background-image:url('${p.image_url || ''}')"></div>
+        <div class="card-body">
+          ${p.origin ? `<div class="origin">${p.origin}</div>` : ''}
+          <h3>${p.name}</h3>
+          <div class="desc">${p.description || ''}</div>
+          <div class="card-footer">
+            <span class="price">£${Number(p.price).toFixed(2)}</span>
+            <button class="add-btn" onclick="addToCart('${p.id}')">Add to cart</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.addToCart = function(id){
+    const existing = cart.find(i => i.id === id);
+    if (existing){ existing.qty += 1; }
+    else {
+      const p = products.find(p => p.id === id);
+      cart.push({ id: p.id, name: p.name, price: p.price, image_url: p.image_url, qty: 1 });
+    }
+    saveCart();
+    renderCart();
+    openCart();
+  };
+
+  window.changeQty = function(id, delta){
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0){ cart = cart.filter(i => i.id !== id); }
+    saveCart();
+    renderCart();
+  };
+
+  window.removeItem = function(id){
+    cart = cart.filter(i => i.id !== id);
+    saveCart();
+    renderCart();
+  };
+
+  function saveCart(){
+    localStorage.setItem('roost_cart', JSON.stringify(cart));
+    document.getElementById('cart-count').textContent = cart.reduce((s,i)=>s+i.qty,0);
+  }
+
+  function renderCart(){
+    const container = document.getElementById('cart-items');
+    if (cart.length === 0){
+      container.innerHTML = `<div class="empty-cart">Your cart is empty.</div>`;
+    } else {
+      container.innerHTML = cart.map(item => `
+        <div class="cart-row">
+          <img src="${item.image_url || ''}">
+          <div class="info">
+            <div class="name">${item.name}</div>
+            <div class="qty-row">
+              <button onclick="changeQty('${item.id}', -1)">–</button>
+              <span>${item.qty}</span>
+              <button onclick="changeQty('${item.id}', 1)">+</button>
+            </div>
+            <button class="remove" onclick="removeItem('${item.id}')">Remove</button>
+          </div>
+          <div>£${(item.price * item.qty).toFixed(2)}</div>
+        </div>
+      `).join('');
+    }
+    const total = cart.reduce((s,i)=>s + i.price*i.qty, 0);
+    document.getElementById('cart-total').textContent = `£${total.toFixed(2)}`;
+  }
+
+  window.openCart = function(){
+    document.getElementById('drawer').classList.add('show');
+    document.getElementById('overlay').classList.add('show');
+  };
+  window.closeCart = function(){
+    document.getElementById('drawer').classList.remove('show');
+    document.getElementById('overlay').classList.remove('show');
+  };
+  window.checkout = function(){
+    if (cart.length === 0) return;
+    alert('Demo checkout — connect a payment provider here. Order total: ' + document.getElementById('cart-total').textContent);
+  };
+
+  saveCart();
+  renderCart();
+  loadProducts();
+</script>
+
+</body>
+</html>
